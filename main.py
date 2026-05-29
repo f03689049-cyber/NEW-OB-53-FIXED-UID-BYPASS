@@ -380,8 +380,8 @@ if __name__ == "__main__":
     Console.info("Ready for DLL Redirections...")
     
     try:
-        # Automatically detect the Wispbyte port
-        proxy_port = os.environ.get("SERVER_PORT", "8080")
+        # Automatically detect the Railway port
+        proxy_port = os.environ.get("PORT", "8080")
         mitmdump(["-s", __file__, "--listen-host", "0.0.0.0", "-p", str(proxy_port), "--set", "block_global=false"])
     except KeyboardInterrupt: pass
     except Exception as e:
