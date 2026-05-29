@@ -1,0 +1,9 @@
+mitmproxy
+aiohttp
+requests
+pycryptodome
+protobuf-decoder
+protobuf
+PyJWT
+flask
+pymongo

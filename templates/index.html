@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UID Bypass Admin Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --panel-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --danger: #ef4444;
+            --danger-hover: #dc2828;
+            --success: #10b981;
+            --border: #334155;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            background-image: radial-gradient(circle at top right, #1e1b4b 0%, transparent 40%),
+                              radial-gradient(circle at bottom left, #0f172a 0%, transparent 40%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-title {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+        }
+
+        .panel {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 1.5rem;
+        }
+
+        .panel-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text-main);
+            font-size: 1rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 0.875rem 1.5rem;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        button:hover {
+            background: var(--accent-hover);
+        }
+
+        button.danger {
+            background: var(--danger);
+            width: auto;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        button.danger:hover {
+            background: var(--danger-hover);
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            background: var(--panel-bg);
+            color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid var(--success);
+            transform: translateX(120%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 50;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.error {
+            border-left-color: var(--danger);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>RAPID CONTROL PANEL</h1>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <div style="color: var(--text-muted); font-size: 0.875rem;">
+                    Status: <span style="color: var(--success); font-weight: 600;">Online</span>
+                </div>
+                <a href="/logout" style="color: var(--text-muted); text-decoration: none; font-size: 0.875rem; padding: 0.25rem 0.75rem; border: 1px solid var(--border); border-radius: 0.25rem; transition: all 0.2s;">Logout</a>
+            </div>
+        </header>
+
+        <div class="stats-grid" id="statsContainer">
+            <!-- Stats populated by JS -->
+        </div>
+
+        <div class="main-content">
+            <div class="panel">
+                <h2 class="panel-title">Add to Whitelist</h2>
+                <form id="addUidForm">
+                    <div class="form-group">
+                        <label for="uid">Player UID</label>
+                        <input type="text" id="uid" placeholder="Enter numerical UID" required pattern="[0-9]+">
+                    </div>
+                    <div class="form-group">
+                        <label for="region">Region</label>
+                        <select id="region">
+                            <option value="GLOBAL">Global</option>
+                            <option value="IND">India</option>
+                            <option value="PK">Pakistan</option>
+                            <option value="BD">Bangladesh</option>
+                            <option value="SG">Singapore</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="duration">Duration</label>
+                        <select id="duration" onchange="document.getElementById('customDurationGroup').style.display = this.value === 'custom' ? 'block' : 'none'">
+                            <option value="lifetime">Lifetime</option>
+                            <option value="24">1 Day</option>
+                            <option value="168">7 Days</option>
+                            <option value="720">30 Days</option>
+                            <option value="8760">1 Year</option>
+                            <option value="custom">Custom (Hours)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="customDurationGroup" style="display: none;">
+                        <label for="custom_duration">Custom Hours</label>
+                        <input type="number" id="custom_duration" placeholder="Enter hours" min="1">
+                    </div>
+                    <button type="submit">Whitelist UID</button>
+                </form>
+            </div>
+
+            <div class="panel">
+                <h2 class="panel-title">Whitelisted UIDs</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>UID</th>
+                                <th>Region</th>
+                                <th>Expires At</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="whitelistTableBody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast">Action completed successfully</div>
+
+    <script>
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            if (isError) {
+                toast.classList.add('error');
+            } else {
+                toast.classList.remove('error');
+            }
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        async function fetchStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+                
+                const statsContainer = document.getElementById('statsContainer');
+                statsContainer.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-title">Whitelisted UIDs</div>
+                        <div class="stat-value">${data.whitelist_count || 0}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">Total Requests</div>
+                        <div class="stat-value">${data.stats?.total || 0}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">Allowed Logins</div>
+                        <div class="stat-value" style="color: var(--success)">${data.stats?.allowed || 0}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-title">Blocked Logins</div>
+                        <div class="stat-value" style="color: var(--danger)">${data.stats?.blocked || 0}</div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error fetching stats:', error);
+            }
+        }
+
+        async function fetchUids() {
+            try {
+                const response = await fetch('/api/uids');
+                const uids = await response.json();
+                
+                const tbody = document.getElementById('whitelistTableBody');
+                tbody.innerHTML = '';
+                
+                if (uids.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted)">No UIDs in whitelist</td></tr>`;
+                    return;
+                }
+
+                uids.forEach(item => {
+                    const tr = document.createElement('tr');
+                    
+                    let expiryText = 'Lifetime';
+                    let statusHtml = '<span class="status-badge">Active</span>';
+                    
+                    if (item.expires_at && item.expires_at > 0) {
+                        const expiryDate = new Date(item.expires_at * 1000);
+                        expiryText = expiryDate.toLocaleString();
+                        
+                        if (Date.now() / 1000 > item.expires_at) {
+                            statusHtml = '<span class="status-badge" style="background: rgba(239, 68, 68, 0.1); color: var(--danger)">Expired</span>';
+                        }
+                    }
+
+                    tr.innerHTML = `
+                        <td style="font-family: monospace; font-size: 1.1rem">${item.uid}</td>
+                        <td>${item.region || 'GLOBAL'}</td>
+                        <td style="color: var(--text-muted); font-size: 0.875rem;">${expiryText}</td>
+                        <td>${statusHtml}</td>
+                        <td>
+                            <button class="danger" onclick="deleteUid('${item.uid}')">Remove</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error('Error fetching UIDs:', error);
+            }
+        }
+
+        document.getElementById('addUidForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const uid = document.getElementById('uid').value;
+            const region = document.getElementById('region').value;
+
+            let duration = document.getElementById('duration').value;
+            if (duration === 'custom') {
+                duration = document.getElementById('custom_duration').value;
+                if (!duration || duration <= 0) {
+                    return showToast('Please enter a valid number of hours', true);
+                }
+            }
+
+            try {
+                const response = await fetch('/api/uids', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ uid, region, duration })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showToast(`UID ${uid} successfully whitelisted`);
+                    document.getElementById('uid').value = '';
+                    fetchUids();
+                    fetchStats();
+                } else {
+                    showToast(result.error || 'Failed to add UID', true);
+                }
+            } catch (error) {
+                showToast('Network error', true);
+            }
+        });
+
+        async function deleteUid(uid) {
+            if (!confirm(`Are you sure you want to remove UID ${uid} from the whitelist?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/uids/${uid}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showToast(`UID ${uid} removed`);
+                    fetchUids();
+                    fetchStats();
+                } else {
+                    showToast(result.error || 'Failed to remove UID', true);
+                }
+            } catch (error) {
+                showToast('Network error', true);
+            }
+        }
+
+        // Initial fetch
+        fetchStats();
+        fetchUids();
+
+        // Refresh stats periodically
+        setInterval(fetchStats, 10000);
+    </script>
+</body>
+</html>
