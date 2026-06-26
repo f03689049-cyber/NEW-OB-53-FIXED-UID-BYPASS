@@ -10,7 +10,7 @@ import io
 # ══════════════════════════════════════════════════════════════
 # BOT CONFIGURATION
 # ══════════════════════════════════════════════════════════════
-TOKEN = "YOUR_DISCORD_BOT_TOKEN_HERE"  # Replace with your actual bot token
+TOKEN = "MTUwNDE1MzgwMDcxMjEzMDYwMg.G9nIFR.9LYtme4g5EQ0fJFhbk17LU6EinjPD1verB7VxQ"  # Replace with your actual bot token
 DB_FILE = "bot_data.db"
 USER_CHANNEL_ID = 1520027159429648525  # Replace with the normal user channel ID
 ADMIN_CHANNEL_ID = 1520027810289156206 # Replace with the admin channel ID
