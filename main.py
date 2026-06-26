@@ -85,9 +85,13 @@ def lookup_geo(ip):
 
 def checkSubscription(uid: str) -> dict:
     uid = str(uid).strip()
-    cur.execute("SELECT 1 FROM blacklist WHERE uid=?", (uid,))
-    if cur.fetchone(): return {"valid": False, "reason": "blacklisted"}
     
+    # 1. Check if blacklisted
+    cur.execute("SELECT 1 FROM blacklist WHERE uid=?", (uid,))
+    if cur.fetchone(): 
+        return {"valid": False, "reason": "blacklisted"}
+    
+    # 2. Check local SQLite whitelist (managed by Discord Bot)
     try:
         cur.execute("SELECT region, expires_at FROM whitelist WHERE uid=?", (uid,))
         row = cur.fetchone()
@@ -96,25 +100,12 @@ def checkSubscription(uid: str) -> dict:
             if expires_at and expires_at > 0:
                 if int(time.time()) > expires_at:
                     return {"valid": False, "reason": "expired"}
-            return {"valid": True, "reason": "local_whitelist", "expiry_date": expires_at or "LIFETIME"}
+            return {"valid": True, "reason": "Discord_Bot_Whitelist", "expiry_date": expires_at or "LIFETIME"}
     except sqlite3.OperationalError:
-        cur.execute("SELECT region FROM whitelist WHERE uid=?", (uid,))
-        row = cur.fetchone()
-        if row: return {"valid": True, "reason": "local_whitelist", "expiry_date": "LIFETIME"}
-    for name, url in UID_SERVERS.items():
-        try:
-            r = req_lib.get(url, timeout=5, proxies={"http": None, "https": None})
-            if r.status_code == 200:
-                for line in r.text.splitlines():
-                    match = re.search(r'(\d{8,})', line)
-                    if match and match.group(1) == uid:
-                        return {"valid": True, "reason": "remote_whitelist", "expiry_date": "LIFETIME"}
-        except: continue
-    global mongo_client
-    try:
-        if mongo_client is None: mongo_client = MongoDBClient()
-        return mongo_client.check_subscription(uid)
-    except: return {"valid": False, "reason": "db_error"}
+        pass # In case database is temporarily locked or missing columns
+        
+    # If not found in the database, it's STRICTLY blocked!
+    return {"valid": False, "reason": "not_whitelisted"}
 
 def send_to_discord(uid, status, ip, country, city, reason, jwt_data=None):
     try:
